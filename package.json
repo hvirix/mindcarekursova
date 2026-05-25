@@ -1,0 +1,37 @@
+{
+  "name": "mindcare-backend",
+  "version": "2.0.0",
+  "description": "MindCare Platform backend — microservice architecture",
+  "main": "gateway/index.js",
+  "scripts": {
+    "start": "concurrently \"node gateway/index.js\" \"node services/auth/index.js\" \"node services/psychologist/index.js\" \"node services/article/index.js\" \"node services/appointment/index.js\" \"node services/admin/index.js\" \"node services/comment/index.js\"",
+    "dev": "concurrently \"nodemon gateway/index.js\" \"nodemon services/auth/index.js\" \"nodemon services/psychologist/index.js\" \"nodemon services/article/index.js\" \"nodemon services/appointment/index.js\" \"nodemon services/admin/index.js\" \"nodemon services/comment/index.js\"",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:db:push": "prisma db push"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcryptjs": "^3.0.2",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "markdown-it": "^14.1.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.10",
+    "turndown": "^7.2.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.19.0"
+  }
+}

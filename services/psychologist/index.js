@@ -1,0 +1,12 @@
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
+const express = require('express');
+const { corsMiddleware } = require('../../shared/corsConfig');
+
+const app = express();
+app.use(corsMiddleware);
+app.use(express.json());
+app.use(require('../../shared/middleware/formatDate'));
+app.use('/', require('./routes'));
+
+const PORT = process.env.PSYCHOLOGIST_PORT || 5002;
+app.listen(PORT, () => console.log(`Psychologist service running on port ${PORT}`));

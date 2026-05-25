@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Comments {
+  id             Int            @id @default(autoincrement())
+  rating         Int
+  text           String
+  createdAt      DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @db.Timestamptz(6)
+  psychologistId Int?
+  userId         Int?
+  Psychologists  Psychologists? @relation(fields: [psychologistId], references: [id])
+  Users          Users?         @relation(fields: [userId], references: [id])
+}
+
+model Psychologists {
+  id                     Int                      @id @default(autoincrement())
+  specialization         String?                  @db.VarChar(255)
+  experience             Int?                     @default(0)
+  bio                    String?
+  price                  Decimal?                 @default(0) @db.Decimal(10, 2)
+  status                 String                   @default("pending") @db.VarChar(50)
+  qualificationDocument  String?                  @db.VarChar(1000)
+  blockedUntil           DateTime?                @db.Timestamptz(6)
+  blockedPermanently     Boolean                  @default(false)
+  createdAt              DateTime                 @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime                 @updatedAt @db.Timestamptz(6)
+  userId                 Int?                     @unique
+  Comments               Comments[]
+  Users                  Users?                   @relation(fields: [userId], references: [id])
+  QualificationDocuments QualificationDocument[]
+  Appointments           Appointments[]
+}
+
+model Users {
+  id                  Int              @id @default(autoincrement())
+  email               String           @unique @db.VarChar(255)
+  password            String           @db.VarChar(255)
+  role                enum_Users_role? @default(patient)
+  firstName           String?          @db.VarChar(255)
+  lastName            String?          @db.VarChar(255)
+  createdAt           DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt           DateTime         @updatedAt @db.Timestamptz(6)
+  photoUrl            String?          @db.VarChar(255)
+  emailNotifications  Boolean          @default(true)
+  Articles            Articles[]
+  Comments            Comments[]
+  Psychologists       Psychologists[]
+  PatientAppointments Appointments[]   @relation("PatientAppointments")
+}
+
+model Articles {
+  id              Int      @id @default(autoincrement())
+  title           String   @db.VarChar(500)
+  description     String?
+  image           String?  @db.VarChar(1000)
+  readTime        String?  @db.VarChar(50)
+  author          String?  @db.VarChar(255)
+  content         String?
+  status          String   @default("draft") @db.VarChar(50)
+  rejectionReason String?  @db.Text
+  createdAt       DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(6)
+  userId          Int?
+  Users           Users?   @relation(fields: [userId], references: [id])
+}
+
+model QualificationDocument {
+  id             Int           @id @default(autoincrement())
+  filename       String        @db.VarChar(255)
+  fileUrl        String        @db.VarChar(1000)
+  fileSize       Int           // Size in bytes
+  isVerified     Boolean       @default(false)
+  uploadedAt     DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @db.Timestamptz(6)
+  psychologistId Int
+  Psychologists  Psychologists @relation(fields: [psychologistId], references: [id], onDelete: Cascade)
+}
+
+model Appointments {
+  id             Int          @id @default(autoincrement())
+  appointmentDateTime DateTime @db.Timestamptz(6)
+  status         String       @default("scheduled") @db.VarChar(50) // scheduled, completed, cancelled
+  createdAt      DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @db.Timestamptz(6)
+  psychologistId Int
+  patientId      Int
+  Psychologists  Psychologists @relation(fields: [psychologistId], references: [id], onDelete: Cascade)
+  Patient        Users        @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([psychologistId, appointmentDateTime])
+  @@index([patientId])
+}
+
+enum enum_Users_role {
+  patient
+  psychologist
+  admin
+}
